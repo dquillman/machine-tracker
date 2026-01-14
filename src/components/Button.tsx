@@ -5,13 +5,15 @@ interface ButtonProps {
     title: string;
     onPress: () => void;
     variant?: 'primary' | 'secondary' | 'danger';
+    size?: 'sm' | 'md' | 'lg';
     loading?: boolean;
     className?: string;
 }
 
-export default function Button({ title, onPress, variant = 'primary', loading = false, className = '' }: ButtonProps) {
+export default function Button({ title, onPress, variant = 'primary', size = 'md', loading = false, className = '' }: ButtonProps) {
     let bgClass = 'bg-blue-600';
     let textClass = 'text-white';
+    let sizeClass = 'py-4 px-6 text-lg';
 
     if (variant === 'secondary') {
         bgClass = 'bg-gray-700';
@@ -20,16 +22,22 @@ export default function Button({ title, onPress, variant = 'primary', loading = 
         bgClass = 'bg-red-600';
     }
 
+    if (size === 'sm') {
+        sizeClass = 'py-2 px-4 text-sm';
+    } else if (size === 'lg') {
+        sizeClass = 'py-5 px-8 text-xl';
+    }
+
     return (
         <TouchableOpacity
             onPress={onPress}
             disabled={loading}
-            className={`py-4 px-6 rounded-xl items-center justify-center active:opacity-80 ${bgClass} ${className}`}
+            className={`rounded-xl items-center justify-center active:opacity-80 ${bgClass} ${sizeClass} ${className}`}
         >
             {loading ? (
                 <ActivityIndicator color="white" />
             ) : (
-                <Text className={`font-bold text-lg ${textClass}`}>{title}</Text>
+                <Text className={`font-bold ${textClass}`}>{title}</Text>
             )}
         </TouchableOpacity>
     );

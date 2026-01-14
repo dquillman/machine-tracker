@@ -6,10 +6,12 @@ import Button from '../../../src/components/Button';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getMachine, updateMachine, deleteMachine } from '../../../src/services/machineService';
 import { Machine } from '../../../src/types';
+import { useAuth } from '../../../src/context/AuthContext';
 
 export default function EditMachine() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
+    const { userProfile } = useAuth();
     const [name, setName] = useState('');
     const [location, setLocation] = useState('');
     const [loading, setLoading] = useState(true);
@@ -17,12 +19,12 @@ export default function EditMachine() {
 
     useEffect(() => {
         loadMachine();
-    }, [id]);
+    }, [id, userProfile?.activeGymId]);
 
     const loadMachine = async () => {
-        if (!id || typeof id !== 'string') return;
+        if (!id || typeof id !== 'string' || !userProfile?.activeGymId) return;
         try {
-            const m = await getMachine(id);
+            const m = await getMachine(userProfile.activeGymId, id);
             if (m) {
                 setName(m.name);
                 setLocation(m.location || '');
@@ -44,11 +46,11 @@ export default function EditMachine() {
             return;
         }
 
-        if (!id || typeof id !== 'string') return;
+        if (!id || typeof id !== 'string' || !userProfile?.activeGymId) return;
 
         setSaving(true);
         try {
-            await updateMachine(id, { name, location });
+            await updateMachine(userProfile.activeGymId, id, { name, location });
             Alert.alert("Success", "Machine updated successfully");
             router.back();
         } catch (error) {
@@ -60,12 +62,11 @@ export default function EditMachine() {
     };
 
     const performDelete = async () => {
-        if (!id || typeof id !== 'string') return;
+        if (!id || typeof id !== 'string' || !userProfile?.activeGymId) return;
         setSaving(true);
         try {
-            await deleteMachine(id);
+            await deleteMachine(userProfile.activeGymId, id);
             // Optional: User feedback before nav
-            // if (Platform.OS === 'web') alert('Machine deleted'); // Can skip to be instant
             router.replace('/');
         } catch (error) {
             console.error(error);

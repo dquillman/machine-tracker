@@ -8,10 +8,12 @@ import { getMachine } from '../../src/services/machineService';
 import { addLog, getMachineLogs, deleteLog } from '../../src/services/logService';
 import { Machine, MachineLog } from '../../src/types';
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../../src/context/AuthContext";
 
 export default function MachineDetail() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
+    const { userProfile } = useAuth();
     const [machine, setMachine] = useState<Machine | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -25,15 +27,15 @@ export default function MachineDetail() {
 
     useEffect(() => {
         loadData();
-    }, [id]);
+    }, [id, userProfile?.activeGymId]);
 
     const loadData = async () => {
-        if (!id || typeof id !== 'string') return;
+        if (!id || typeof id !== 'string' || !userProfile?.activeGymId) return;
         try {
-            const m = await getMachine(id);
+            const m = await getMachine(userProfile.activeGymId, id);
             setMachine(m);
 
-            const logs = await getMachineLogs(id, 5);
+            const logs = await getMachineLogs(userProfile.activeGymId, id, 5);
             setRecentLogs(logs);
 
             // Pre-fill with last log or defaults
@@ -61,11 +63,11 @@ export default function MachineDetail() {
     };
 
     const handleSave = async () => {
-        if (!machine || !id || typeof id !== 'string') return;
+        if (!machine || !id || typeof id !== 'string' || !userProfile?.activeGymId) return;
 
         setSaving(true);
         try {
-            await addLog(id, settings, notes);
+            await addLog(userProfile.activeGymId, id, settings, notes);
             Alert.alert("Success", "Workout logged!");
             loadData(); // Reload history
         } catch (error) {
@@ -78,8 +80,9 @@ export default function MachineDetail() {
 
     const handleDeleteLog = (logId: string) => {
         const confirmDelete = async () => {
+            if (!userProfile?.activeGymId || typeof id !== 'string') return;
             try {
-                await deleteLog(logId);
+                await deleteLog(userProfile.activeGymId, id, logId);
                 loadData(); // Refresh list
             } catch (error) {
                 console.error(error);
@@ -128,14 +131,25 @@ export default function MachineDetail() {
                         <Text className="text-white text-3xl font-bold">{machine.name}</Text>
                         {machine.location && <Text className="text-gray-400">{machine.location}</Text>}
                     </View>
-                    <View className="flex-row">
+                    <View className="flex-row items-center">
+                        <Button
+                            title="Progress"
+                            variant="secondary"
+                            size="sm"
+                            onPress={() => router.push({
+                                pathname: `/machines/progress/[key]`,
+                                params: { key: machine.machineKey, name: machine.name }
+                            })}
+                            className="mr-2"
+                        />
                         <Button
                             title="Edit"
                             variant="secondary"
+                            size="sm"
                             onPress={() => router.push(`/machines/edit/${machine.id}`)}
-                            className="py-2 px-4 mr-2"
+                            className="mr-2"
                         />
-                        <Button title="Back" variant="secondary" onPress={() => router.back()} className="py-2 px-4" />
+                        <Button title="Back" variant="secondary" size="sm" onPress={() => router.back()} />
                     </View>
                 </View>
 

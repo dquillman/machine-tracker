@@ -1,25 +1,44 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, FlatList, RefreshControl } from "react-native";
+import React, { useCallback, useState, useEffect } from 'react';
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, Alert } from "react-native";
 import ScreenWrapper from "../../src/components/ScreenWrapper";
 import { useRouter, useFocusEffect } from "expo-router";
 import Button from "../../src/components/Button";
 import { useAuth } from "../../src/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { getMachines } from "../../src/services/machineService";
-import { Machine } from "../../src/types";
+import { getMachines, checkAndMigrate } from "../../src/services/machineService";
+import { getGyms } from "../../src/services/gymService";
+import { Machine, Gym } from "../../src/types";
 import MachineCard from "../../src/components/MachineCard";
 import Constants from 'expo-constants';
 
 export default function MachineList() {
-    const { logout, user } = useAuth();
+    const { logout, user, userProfile, refreshProfile } = useAuth();
     const router = useRouter();
     const [machines, setMachines] = useState<Machine[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [activeGymName, setActiveGymName] = useState('Loading...');
 
-    const loadMachines = async () => {
+    // Migration Check
+    useEffect(() => {
+        if (user && !userProfile?.migrationComplete) {
+            checkAndMigrate().then(() => refreshProfile());
+        }
+    }, [user, userProfile]);
+
+    const loadData = async () => {
+        if (!userProfile?.activeGymId) {
+            setLoading(false);
+            return;
+        }
         try {
-            const data = await getMachines();
+            // Fetch Gym Name (could cache this in profile or separate context, but fetching list is fast enough)
+            const gyms = await getGyms();
+            const currentGym = gyms.find(g => g.id === userProfile.activeGymId);
+            setActiveGymName(currentGym?.name || 'Unknown Gym');
+
+            // Fetch Machines
+            const data = await getMachines(userProfile.activeGymId);
             setMachines(data);
         } catch (error) {
             console.error(error);
@@ -29,32 +48,29 @@ export default function MachineList() {
         }
     };
 
-    const handleSeed = async () => {
-        setLoading(true);
-        try {
-            const { seedMachines } = await import("../../src/services/machineService");
-            await seedMachines();
-            loadMachines();
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     useFocusEffect(
         useCallback(() => {
-            loadMachines();
-        }, [user])
+            loadData();
+        }, [userProfile?.activeGymId])
     );
 
     const handleRefresh = () => {
         setRefreshing(true);
-        loadMachines();
+        refreshProfile().then(() => loadData());
     };
 
     return (
         <ScreenWrapper>
             <View className="flex-row justify-between items-center py-4 mb-2">
-                <Text className="text-white text-3xl font-bold">Gym Machines</Text>
+                <View>
+                    <Text className="text-gray-400 text-xs uppercase font-bold tracking-wider">Current Gym</Text>
+                    <TouchableOpacity onPress={() => router.push("/gyms")}>
+                        <View className="flex-row items-center">
+                            <Text className="text-white text-2xl font-bold mr-2">{activeGymName}</Text>
+                            <Ionicons name="chevron-down" size={20} color="#3B82F6" />
+                        </View>
+                    </TouchableOpacity>
+                </View>
                 <Ionicons name="log-out-outline" size={24} color="#9CA3AF" onPress={logout} />
             </View>
 
@@ -70,17 +86,11 @@ export default function MachineList() {
                 ListEmptyComponent={
                     !loading ? (
                         <View className="flex-1 items-center justify-center mt-20">
-                            <Text className="text-gray-500 mb-6 text-lg">No machines added yet.</Text>
+                            <Text className="text-gray-500 mb-6 text-lg">No machines in this gym.</Text>
                             <Button
-                                title="Add Your First Machine"
+                                title="Add Machine"
                                 onPress={() => router.push("/machines/new")}
                                 className="w-full mb-4"
-                            />
-                            <Button
-                                title="Load Default Machines"
-                                variant="secondary"
-                                onPress={handleSeed}
-                                className="w-full"
                             />
                         </View>
                     ) : null

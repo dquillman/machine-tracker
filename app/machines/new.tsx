@@ -5,9 +5,11 @@ import Input from '../../src/components/Input';
 import Button from '../../src/components/Button';
 import { useRouter } from 'expo-router';
 import { addMachine } from '../../src/services/machineService';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function AddMachine() {
     const router = useRouter();
+    const { userProfile } = useAuth();
     const [name, setName] = useState('');
     const [location, setLocation] = useState('');
     const [type, setType] = useState<'strength' | 'treadmill'>('strength');
@@ -19,9 +21,14 @@ export default function AddMachine() {
             return;
         }
 
+        if (!userProfile?.activeGymId) {
+            Alert.alert("Error", "No Active Gym selected");
+            return;
+        }
+
         setLoading(true);
         try {
-            await addMachine(name, location, type);
+            await addMachine(userProfile.activeGymId, name, location, type);
             router.back();
         } catch (error) {
             console.error(error);
