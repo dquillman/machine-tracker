@@ -1,15 +1,45 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /machines/{machineId} {
-      // Allow read/write if the user is authenticated and is the owner
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-      // Allow create if authenticated (userId validation happens in code, or we can enforce here)
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    
+    // Helper function to check ownership
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
-    match /logs/{logId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+
+    // Users Collection
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      // Flattened Logs Subcollection
+      match /machineLogs/{logId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Gyms Collection
+    match /gyms/{gymId} {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Nested Machines
+      match /machines/{machineId} {
+        // Machines store userId, so we can check that directly
+        allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+        allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+        
+        // Nested Settings/Logs
+        match /settings/{settingId} {
+          // Logs also store userId
+          allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+          allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+        }
+      }
+    }
+    
+    // Legacy Machines collection (for migration support, if needed)
+    match /machines/{machineId} {
+      allow read, write: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
     }
   }
 }

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Alert } from 'react-native';
 import ScreenWrapper from '../../src/components/ScreenWrapper';
 import Input from '../../src/components/Input';
 import Button from '../../src/components/Button';
+import Dropdown from '../../src/components/Dropdown';
 import { useRouter } from 'expo-router';
-import { addMachine } from '../../src/services/machineService';
+import { addMachine, getAllUniqueMachineNames } from '../../src/services/machineService';
 import { useAuth } from '../../src/context/AuthContext';
 
 export default function AddMachine() {
@@ -14,6 +15,39 @@ export default function AddMachine() {
     const [location, setLocation] = useState('');
     const [type, setType] = useState<'strength' | 'treadmill'>('strength');
     const [loading, setLoading] = useState(false);
+    const [existingMachines, setExistingMachines] = useState<string[]>([]);
+    const [loadingMachines, setLoadingMachines] = useState(true);
+
+    useEffect(() => {
+        loadExistingMachines();
+    }, []);
+
+    const loadExistingMachines = async () => {
+        try {
+            const machines = await getAllUniqueMachineNames();
+
+            // If no machines exist and we have an active gym, seed default machines
+            if (machines.length === 0 && userProfile?.activeGymId) {
+                console.log("No machines found, seeding defaults...");
+                const { seedMachines } = await import('../../src/services/machineService');
+                await seedMachines(userProfile.activeGymId);
+
+                // Reload machines after seeding
+                const refreshedMachines = await getAllUniqueMachineNames();
+                setExistingMachines(refreshedMachines);
+            } else {
+                setExistingMachines(machines);
+            }
+        } catch (error) {
+            console.error("Error loading machines:", error);
+        } finally {
+            setLoadingMachines(false);
+        }
+    };
+
+    const handleMachineSelect = (machineName: string) => {
+        setName(machineName);
+    };
 
     const handleCreate = async () => {
         if (!name.trim()) {
@@ -57,6 +91,18 @@ export default function AddMachine() {
                         className="flex-1 ml-1 py-3"
                     />
                 </View>
+
+                {loadingMachines ? (
+                    <Text className="text-gray-400 mb-4">Loading existing machines...</Text>
+                ) : existingMachines.length > 0 ? (
+                    <Dropdown
+                        label="Select Existing Machine (Optional)"
+                        value=""
+                        options={existingMachines}
+                        onSelect={handleMachineSelect}
+                        placeholder="Choose from your machines..."
+                    />
+                ) : null}
 
                 <Input
                     label="Machine Name"

@@ -31,6 +31,7 @@ export const addMachine = async (gymId: string, name: string, location?: string,
     const machineData: Omit<Machine, 'id'> = {
         userId: auth.currentUser.uid,
         name,
+        machineKey: name.toLowerCase().replace(/\s+/g, '-'),
         location,
         fields: fields as any,
         isArchived: false,
@@ -80,6 +81,44 @@ export const getMachine = async (gymId: string, id: string): Promise<Machine | n
         return { id: docSnap.id, ...docSnap.data() } as Machine;
     }
     return null;
+};
+
+export const getAllUniqueMachineNames = async (): Promise<string[]> => {
+    if (!auth.currentUser) return [];
+
+    try {
+        // Get all gyms for current user
+        const gymsQuery = query(
+            collection(db, GYMS_COLLECTION),
+            where("userId", "==", auth.currentUser.uid)
+        );
+        const gymsSnapshot = await getDocs(gymsQuery);
+
+        // Collect all unique machine names
+        const machineNamesSet = new Set<string>();
+
+        // Fetch machines from each gym
+        for (const gymDoc of gymsSnapshot.docs) {
+            const machinesQuery = query(
+                collection(db, GYMS_COLLECTION, gymDoc.id, MACHINES_SUBCOLLECTION),
+                where("userId", "==", auth.currentUser.uid)
+            );
+            const machinesSnapshot = await getDocs(machinesQuery);
+
+            machinesSnapshot.docs.forEach(machineDoc => {
+                const machineName = machineDoc.data().name;
+                if (machineName) {
+                    machineNamesSet.add(machineName);
+                }
+            });
+        }
+
+        // Convert to sorted array
+        return Array.from(machineNamesSet).sort((a, b) => a.localeCompare(b));
+    } catch (error) {
+        console.error("Error fetching unique machine names:", error);
+        return [];
+    }
 };
 
 // --- Migration ---
@@ -154,6 +193,7 @@ export const seedMachines = async (gymId: string) => {
         batch.set(newRef, {
             ...m,
             userId: auth.currentUser!.uid,
+            machineKey: m.name.toLowerCase().replace(/\s+/g, '-'),
             location: 'Default',
             isArchived: false,
             lastUsed: Date.now()
@@ -162,3 +202,4 @@ export const seedMachines = async (gymId: string) => {
 
     await batch.commit();
 };
+
