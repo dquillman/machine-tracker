@@ -29,10 +29,11 @@ export default function History() {
         }, [])
     );
 
-    const handleDelete = (id: string) => {
+    const handleDelete = (item: MachineLog) => {
         const confirmDelete = async () => {
+            if (!item.gymId || !item.machineId) return;
             try {
-                await deleteLog(id);
+                await deleteLog(item.gymId, item.machineId, item.id);
                 loadHistory(); // Refresh list
             } catch (error) {
                 console.error(error);
@@ -65,8 +66,8 @@ export default function History() {
                     <View className="bg-gray-800 p-4 rounded-xl mb-3 border border-gray-700 relative">
                         <View className="flex-row justify-between mb-2">
                             <Text className="text-gray-400 text-xs">{new Date(item.date).toLocaleDateString()} {new Date(item.date).toLocaleTimeString()}</Text>
-                            <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                                <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                            <TouchableOpacity onPress={() => handleDelete(item)}>
+                                <Text className="text-lg">🗑️</Text>
                             </TouchableOpacity>
                         </View>
 

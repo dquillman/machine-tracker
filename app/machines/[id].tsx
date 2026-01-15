@@ -193,7 +193,7 @@ export default function MachineDetail() {
                                 <View className="flex-row justify-between mb-2">
                                     <Text className="text-gray-400 text-xs">{new Date(log.date).toLocaleDateString()} {new Date(log.date).toLocaleTimeString()}</Text>
                                     <TouchableOpacity onPress={() => handleDeleteLog(log.id)}>
-                                        <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                                        <Text className="text-sm">🗑️</Text>
                                     </TouchableOpacity>
                                 </View>
 

@@ -49,20 +49,29 @@ export const addLog = async (gymId: string, machineId: string, settings: Record<
     const rawWeight = weightFieldKey ? settings[weightFieldKey] : undefined;
     const { val: weightNormalizedLb, unit: weightUnit } = normalizeWeight(rawWeight);
 
-    const logData: Omit<MachineLog, 'id'> = {
+    const logData: any = {
         userId,
         gymId,
         machineId,
         machineKey,
         date: Date.now(),
         settings,
-        notes,
-        // Flattened fields
-        weightRaw: rawWeight ? String(rawWeight) : undefined,
-        weightValue: weightFieldKey ? parseFloat(String(rawWeight).replace(/[^0-9.]/g, '')) : undefined,
-        weightUnit,
-        weightNormalizedLb
+        notes: notes || null
     };
+
+    // Flattened fields - skip if undefined
+    if (rawWeight !== undefined && rawWeight !== null) {
+        logData.weightRaw = String(rawWeight);
+        const parsedVal = parseFloat(String(rawWeight).replace(/[^0-9.]/g, ''));
+        if (!isNaN(parsedVal)) {
+            logData.weightValue = parsedVal;
+        }
+    }
+
+    logData.weightUnit = weightUnit;
+    if (weightNormalizedLb !== undefined) {
+        logData.weightNormalizedLb = weightNormalizedLb;
+    }
 
     // 3. Write to Nested Collection (Legacy / Gym-Scoped)
     const docRef = await addDoc(collection(db, GYMS_COLLECTION, gymId, MACHINES_SUBCOLLECTION, machineId, SETTINGS_SUBCOLLECTION), logData);

@@ -100,7 +100,7 @@ export default function ProgressScreen() {
                     </View>
                 ) : (
                     <View className="p-6 bg-gray-800 rounded-xl mb-6 border border-gray-700 items-center">
-                        <Ionicons name="stats-chart" size={48} color="#4B5563" />
+                        <Text className="text-4xl mb-2">📊</Text>
                         <Text className="text-gray-400 mt-2 text-center">Not enough data for chart. Log at least 2 sessions with valid weights (lb/kg).</Text>
                     </View>
                 )}

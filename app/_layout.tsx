@@ -1,13 +1,27 @@
 import "../global.css";
 import { Slot, useRouter, useSegments } from "expo-router";
+import Head from "expo-router/head";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 
 function AuthLayout() {
+    return (
+        <>
+            <Head>
+                <title>Gym Machine Tracker</title>
+                <link rel="icon" type="image/png" href="/favicon.png" />
+            </Head>
+            <InnerAuthLayout />
+        </>
+    );
+}
+
+function InnerAuthLayout() {
     const { user, loading } = useAuth();
     const segments = useSegments();
     const router = useRouter();
+
 
     useEffect(() => {
         // Global error handler for unhandled promise rejections

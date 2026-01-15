@@ -67,11 +67,13 @@ export default function MachineList() {
                     <TouchableOpacity onPress={() => router.push("/gyms")}>
                         <View className="flex-row items-center">
                             <Text className="text-white text-2xl font-bold mr-2">{activeGymName}</Text>
-                            <Ionicons name="chevron-down" size={20} color="#3B82F6" />
+                            <Text className="text-blue-400 text-lg ml-1">🔽</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
-                <Ionicons name="log-out-outline" size={24} color="#9CA3AF" onPress={logout} />
+                <TouchableOpacity onPress={logout}>
+                    <Text className="text-xl">🚪</Text>
+                </TouchableOpacity>
             </View>
 
             <FlatList

@@ -111,7 +111,7 @@ export default function GymsList() {
                                 {userProfile?.activeGymId === item.id && <Text className="text-blue-400 text-xs uppercase font-bold mt-1">Active</Text>}
                             </View>
                             <TouchableOpacity onPress={() => handleDeleteGym(item.id, item.name)}>
-                                <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                                <Text className="text-2xl">🗑️</Text>
                             </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
