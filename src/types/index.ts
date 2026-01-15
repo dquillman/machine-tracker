@@ -15,6 +15,7 @@ export interface Machine {
     fields: MachineField[];
     lastUsed?: number; // timestamp
     isArchived?: boolean;
+    order?: number;
 }
 
 export interface MachineLog {

@@ -60,13 +60,15 @@ export default function AddMachine() {
             return;
         }
 
+        console.log(`[AddMachine] Creating ${type} machine: "${name}" in gym: ${userProfile.activeGymId}`);
         setLoading(true);
         try {
-            await addMachine(userProfile.activeGymId, name, location, type);
+            const result = await addMachine(userProfile.activeGymId, name, location, type);
+            console.log(`[AddMachine] Successfully created machine:`, result);
             router.back();
-        } catch (error) {
-            console.error(error);
-            Alert.alert("Error", "Failed to create machine");
+        } catch (error: any) {
+            console.error("[AddMachine] Error creating machine:", error);
+            Alert.alert("Error", error?.message || "Failed to create machine");
         } finally {
             setLoading(false);
         }

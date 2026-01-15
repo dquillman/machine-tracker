@@ -103,6 +103,34 @@ export const getChartData = async (machineKey: string): Promise<MachineLog[]> =>
     return logs.sort((a, b) => a.date - b.date);
 };
 
+export const getLatestLogForMachine = async (machineKey: string): Promise<MachineLog | null> => {
+    if (!auth.currentUser) return null;
+
+    console.log(`[logService] getLatestLogForMachine called for machineKey: "${machineKey}"`);
+    const userId = auth.currentUser.uid;
+    const q = query(
+        collection(db, 'users', userId, FLATTENED_LOGS_COLLECTION),
+        where("machineKey", "==", machineKey),
+        orderBy("date", "desc"),
+        limit(1)
+    );
+
+    try {
+        const snapshot = await getDocs(q);
+        console.log(`[logService] Query returned ${snapshot.size} results for machineKey: "${machineKey}"`);
+        if (snapshot.empty) {
+            console.log(`[logService] No logs found for machineKey: "${machineKey}"`);
+            return null;
+        }
+        const log = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as MachineLog;
+        console.log(`[logService] Latest log for "${machineKey}":`, log.settings);
+        return log;
+    } catch (error) {
+        console.error(`[logService] Error fetching latest log for ${machineKey}:`, error);
+        return null;
+    }
+};
+
 export const deleteLog = async (gymId: string, machineId: string, logId: string) => {
     if (!auth.currentUser) throw new Error("User not authenticated");
     // Delete nested

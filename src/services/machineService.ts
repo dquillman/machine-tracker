@@ -13,6 +13,8 @@ export const addMachine = async (gymId: string, name: string, location?: string,
     if (!auth.currentUser) throw new Error("User not authenticated");
     if (!gymId) throw new Error("Gym ID is required");
 
+    console.log(`[machineService] addMachine called - gymId: ${gymId}, name: ${name}, type: ${type}, location: ${location}`);
+
     let fields = [];
     if (type === 'treadmill') {
         fields = [
@@ -35,11 +37,19 @@ export const addMachine = async (gymId: string, name: string, location?: string,
         location,
         fields: fields as any,
         isArchived: false,
-        lastUsed: Date.now()
+        lastUsed: Date.now(),
+        order: Date.now() // New machines go to the end
     };
 
-    const docRef = await addDoc(collection(db, GYMS_COLLECTION, gymId, MACHINES_SUBCOLLECTION), machineData);
-    return { id: docRef.id, ...machineData };
+    console.log(`[machineService] Writing machine to Firestore:`, machineData);
+    try {
+        const docRef = await addDoc(collection(db, GYMS_COLLECTION, gymId, MACHINES_SUBCOLLECTION), machineData);
+        console.log(`[machineService] Machine created successfully with ID: ${docRef.id}`);
+        return { id: docRef.id, ...machineData };
+    } catch (error) {
+        console.error(`[machineService] Firestore write failed:`, error);
+        throw error;
+    }
 };
 
 export const updateMachine = async (gymId: string, id: string, updates: Partial<Machine>) => {
@@ -55,22 +65,50 @@ export const deleteMachine = async (gymId: string, id: string) => {
     await deleteDoc(doc(db, GYMS_COLLECTION, gymId, MACHINES_SUBCOLLECTION, id));
 };
 
+export const updateMachinesOrder = async (gymId: string, machineOrders: { id: string, order: number }[]) => {
+    if (!auth.currentUser) throw new Error("User not authenticated");
+    const batch = writeBatch(db);
+
+    machineOrders.forEach(({ id, order }) => {
+        const docRef = doc(db, GYMS_COLLECTION, gymId, MACHINES_SUBCOLLECTION, id);
+        batch.update(docRef, { order });
+    });
+
+    await batch.commit();
+};
+
 export const getMachines = async (gymId?: string): Promise<Machine[]> => {
     if (!auth.currentUser) return [];
-    if (!gymId) return []; // Or switch to fetching from root if we want? No, let's enforce gym.
+    if (!gymId) {
+        console.warn("getMachines called without gymId");
+        return [];
+    }
 
     const q = query(
         collection(db, GYMS_COLLECTION, gymId, MACHINES_SUBCOLLECTION),
         where("userId", "==", auth.currentUser.uid)
     );
 
-    const querySnapshot = await getDocs(q);
-    const machines = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    } as Machine));
+    try {
+        const querySnapshot = await getDocs(q);
+        const machines = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Machine));
 
-    return machines.sort((a, b) => a.name.localeCompare(b.name));
+        // Sort by order ASC, then name ASC
+        // For machines without order, treat them as very large number to put them at the end
+        // but if all have undefined, they sort by name.
+        return machines.sort((a, b) => {
+            const orderA = a.order !== undefined ? a.order : Number.MAX_SAFE_INTEGER;
+            const orderB = b.order !== undefined ? b.order : Number.MAX_SAFE_INTEGER;
+            if (orderA !== orderB) return orderA - orderB;
+            return a.name.localeCompare(b.name);
+        });
+    } catch (error) {
+        console.error("Error in getMachines:", error);
+        return [];
+    }
 };
 
 export const getMachine = async (gymId: string, id: string): Promise<Machine | null> => {
@@ -188,7 +226,7 @@ export const seedMachines = async (gymId: string) => {
     if (!auth.currentUser) return;
     const batch = writeBatch(db);
 
-    defaultMachines.forEach(m => {
+    defaultMachines.forEach((m, index) => {
         const newRef = doc(collection(db, GYMS_COLLECTION, gymId, MACHINES_SUBCOLLECTION));
         batch.set(newRef, {
             ...m,
@@ -196,7 +234,8 @@ export const seedMachines = async (gymId: string) => {
             machineKey: m.name.toLowerCase().replace(/\s+/g, '-'),
             location: 'Default',
             isArchived: false,
-            lastUsed: Date.now()
+            lastUsed: Date.now(),
+            order: index // Seed with sequential order
         });
     });
 

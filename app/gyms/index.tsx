@@ -110,9 +110,17 @@ export default function GymsList() {
                                 <Text className="text-white font-bold text-lg">{item.name}</Text>
                                 {userProfile?.activeGymId === item.id && <Text className="text-blue-400 text-xs uppercase font-bold mt-1">Active</Text>}
                             </View>
-                            <TouchableOpacity onPress={() => handleDeleteGym(item.id, item.name)}>
-                                <Text className="text-2xl">🗑️</Text>
-                            </TouchableOpacity>
+                            <View className="flex-row items-center">
+                                <TouchableOpacity
+                                    onPress={() => router.push(`/gyms/edit/${item.id}`)}
+                                    className="mr-4"
+                                >
+                                    <Text className="text-2xl">✏️</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => handleDeleteGym(item.id, item.name)}>
+                                    <Text className="text-2xl">🗑️</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </TouchableOpacity>
                 )}

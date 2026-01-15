@@ -1,4 +1,19 @@
 {
-    "indexes": [],
+    "indexes": [
+        {
+            "collectionGroup": "machineLogs",
+            "queryScope": "COLLECTION_GROUP",
+            "fields": [
+                {
+                    "fieldPath": "machineKey",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "date",
+                    "order": "DESCENDING"
+                }
+            ]
+        }
+    ],
     "fieldOverrides": []
 }

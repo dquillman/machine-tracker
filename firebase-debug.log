@@ -1,0 +1,56 @@
+[debug] [2026-01-15T03:49:17.106Z] ----------------------------------------------------------------------
+[debug] [2026-01-15T03:49:17.109Z] Command:       G:\Apps\Nodejs folder\node.exe G:\npm-global\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:indexes
+[debug] [2026-01-15T03:49:17.109Z] CLI Version:   15.2.1
+[debug] [2026-01-15T03:49:17.109Z] Platform:      win32
+[debug] [2026-01-15T03:49:17.109Z] Node Version:  v24.9.0
+[debug] [2026-01-15T03:49:17.109Z] Time:          Wed Jan 14 2026 21:49:17 GMT-0600 (Central Standard Time)
+[debug] [2026-01-15T03:49:17.109Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-01-15T03:49:21.348Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-01-15T03:49:21.348Z] > authorizing via signed-in user (dquillman2112@gmail.com)
+[debug] [2026-01-15T03:49:21.348Z] [iam] checking project gym-machine-tracker-daveq for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-01-15T03:49:21.350Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:21.350Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:21.352Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/gym-machine-tracker-daveq:testIamPermissions [none]
+[debug] [2026-01-15T03:49:21.352Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/gym-machine-tracker-daveq:testIamPermissions x-goog-quota-user=projects/gym-machine-tracker-daveq
+[debug] [2026-01-15T03:49:21.352Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/gym-machine-tracker-daveq:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2026-01-15T03:49:21.629Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/gym-machine-tracker-daveq:testIamPermissions 200
+[debug] [2026-01-15T03:49:21.629Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/gym-machine-tracker-daveq:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'gym-machine-tracker-daveq'...
+[info] 
+[info] i  deploying firestore 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2026-01-15T03:49:21.633Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:21.633Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:21.633Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default) [none]
+[debug] [2026-01-15T03:49:21.978Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default) 200
+[debug] [2026-01-15T03:49:21.978Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default) {"name":"projects/gym-machine-tracker-daveq/databases/(default)","uid":"ce9b1c8b-c130-4bbe-827f-62ebd819b80e","createTime":"2026-01-14T04:50:52.063977Z","updateTime":"2026-01-14T04:50:52.063977Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-01-15T02:49:21.962716Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"ILDBueHRjJIDMLfHtIWeipID"}
+[info] i  firestore: reading indexes from firestore.indexes.json... 
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2026-01-15T03:49:21.992Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:21.992Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:21.993Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/gym-machine-tracker-daveq:test [none]
+[debug] [2026-01-15T03:49:21.993Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/gym-machine-tracker-daveq:test [omitted]
+[debug] [2026-01-15T03:49:22.962Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/gym-machine-tracker-daveq:test 200
+[debug] [2026-01-15T03:49:22.962Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/gym-machine-tracker-daveq:test {}
+[info] +  cloud.firestore: rules file firestore.rules compiled successfully 
+[info] i  firestore: deploying indexes... 
+[debug] [2026-01-15T03:49:22.964Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:22.964Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:22.965Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/-/indexes [none]
+[debug] [2026-01-15T03:49:23.148Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/-/indexes 200
+[debug] [2026-01-15T03:49:23.148Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/-/indexes {"indexes":[{"name":"projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/machines/indexes/CICAgOjXh4EK","queryScope":"COLLECTION","fields":[{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"name","order":"ASCENDING"},{"fieldPath":"__name__","order":"ASCENDING"}],"state":"READY","density":"SPARSE_ALL"}]}
+[debug] [2026-01-15T03:49:23.148Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:23.148Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:23.148Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* [none]
+[debug] [2026-01-15T03:49:23.311Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* 200
+[debug] [2026-01-15T03:49:23.311Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/-/fields?filter=indexConfig.usesAncestorConfig=false OR ttlConfig:* {"fields":[{"name":"projects/gym-machine-tracker-daveq/databases/(default)/collectionGroups/__default__/fields/*","indexConfig":{"indexes":[{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"ASCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","order":"DESCENDING"}],"state":"READY"},{"queryScope":"COLLECTION","fields":[{"fieldPath":"*","arrayConfig":"CONTAINS"}],"state":"READY"}]}}]}
+[debug] [2026-01-15T03:49:23.311Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:23.311Z] Checked if tokens are valid: true, expires at: 1768451093952
+[debug] [2026-01-15T03:49:23.311Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default) [none]
+[debug] [2026-01-15T03:49:23.531Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default) 200
+[debug] [2026-01-15T03:49:23.532Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/gym-machine-tracker-daveq/databases/(default) {"name":"projects/gym-machine-tracker-daveq/databases/(default)","uid":"ce9b1c8b-c130-4bbe-827f-62ebd819b80e","createTime":"2026-01-14T04:50:52.063977Z","updateTime":"2026-01-14T04:50:52.063977Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-01-15T02:49:23.496850Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IOaSl+LRjJIDMLfHtIWeipID"}
+[info] i  firestore: The following indexes are defined in your project but are not present in your firestore indexes file:
+	(machines) -- (userId,ASCENDING) (name,ASCENDING)  -- Density:SPARSE_ALL  
